@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Results | Jobs SkillSync</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <nav>
+        <div class="logo">⚡ Jobs SkillSync</div>
+        <div class="nav-links">
+            <a href="../index.html">Home</a>
+            <a href="upload.html">New Match</a>
+            <a href="dashboard.html">Dashboard</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="card">
+            <h2 id="resultsTitle">🏆 Ranked Candidates</h2>
+            <p style="color:#94a3b8; margin-bottom:1.5rem;" id="resultsSubtitle"></p>
+
+            <table id="resultsTable">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Candidate</th>
+                        <th>File</th>
+                        <th>Match Score</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="resultsBody"></tbody>
+            </table>
+
+            <div id="noResults" style="display:none; color:#94a3b8; text-align:center; padding:2rem;">
+                No results found. <a href="upload.html" style="color:#38bdf8;">Go back and try again.</a>
+            </div>
+        </div>
+
+        <div style="text-align:center; margin-top:1rem;">
+            <a href="upload.html" class="btn-primary">← Match Another Job</a>
+        </div>
+    </div>
+
+    <script>
+        const results = JSON.parse(localStorage.getItem("matchResults") || "[]");
+        const jobTitle = localStorage.getItem("jobTitle") || "Job";
+
+        document.getElementById("resultsTitle").textContent = `🏆 Results for: ${jobTitle}`;
+        document.getElementById("resultsSubtitle").textContent = `${results.length} candidate(s) analyzed`;
+
+        const tbody = document.getElementById("resultsBody");
+
+        if (results.length === 0) {
+            document.getElementById("resultsTable").style.display = "none";
+            document.getElementById("noResults").style.display = "block";
+        } else {
+            results.forEach((r, index) => {
+                const badgeClass = r.status === "Strong Match" ? "badge-strong" :
+                                   r.status === "Moderate Match" ? "badge-moderate" : "badge-poor";
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td>${r.name}</td>
+                        <td style="color:#94a3b8; font-size:0.85rem;">${r.file_name}</td>
+                        <td><strong style="color:#38bdf8;">${r.match_percentage}</strong></td>
+                        <td><span class="${badgeClass}">${r.status}</span></td>
+                    </tr>
+                `;
+            });
+        }
+    </script>
+</body>
+</html>
