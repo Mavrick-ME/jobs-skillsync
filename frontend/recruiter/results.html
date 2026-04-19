@@ -13,6 +13,7 @@
             <a href="../index.html">Home</a>
             <a href="upload.html">New Match</a>
             <a href="dashboard.html">Dashboard</a>
+            <a href="#" onclick="logout(); window.location.href='login.html'" style="color:#f87171;">Logout</a>
         </div>
     </nav>
 
@@ -44,6 +45,7 @@
         </div>
     </div>
 
+    <script src="../js/auth.js"></script>
     <script>
         const results = JSON.parse(localStorage.getItem("matchResults") || "[]");
         const jobTitle = localStorage.getItem("jobTitle") || "Job";
@@ -71,6 +73,7 @@
                 `;
             });
         }
+        requireAuth("recruiter", "login.html");
     </script>
 </body>
 </html>

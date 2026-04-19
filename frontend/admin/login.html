@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login | Jobs SkillSync</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/animations.css">
+    <script src="https://cdn.jsdelivr.net/npm/tsparticles@2/tsparticles.bundle.min.js"></script>
+    <style>
+        .login-wrapper {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+        .login-box {
+            background: rgba(30, 41, 59, 0.85);
+            border: 1px solid #1e293b;
+            border-radius: 20px;
+            padding: 3rem;
+            width: 100%;
+            max-width: 420px;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 0 80px rgba(129, 140, 248, 0.07);
+            animation: fadeSlideUp 0.6s ease forwards;
+        }
+        .login-logo {
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #38bdf8;
+            margin-bottom: 0.5rem;
+        }
+        .login-role {
+            text-align: center;
+            color: #818cf8;
+            font-size: 0.85rem;
+            margin-bottom: 2rem;
+        }
+        .login-title {
+            text-align: center;
+            color: #f1f5f9;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        .login-subtitle {
+            text-align: center;
+            color: #64748b;
+            font-size: 0.85rem;
+            margin-bottom: 2rem;
+        }
+        .input-group {
+            position: relative;
+            margin-bottom: 1.2rem;
+        }
+        .input-group .icon {
+            position: absolute;
+            left: 0.9rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1rem;
+        }
+        .input-group input {
+            padding-left: 2.5rem;
+            margin-bottom: 0;
+        }
+        .error-msg {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #f87171;
+            padding: 0.8rem 1rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            margin-bottom: 1rem;
+            display: none;
+        }
+        .login-btn {
+            width: 100%;
+            padding: 0.9rem;
+            font-size: 1rem;
+            border-radius: 10px;
+            margin-top: 0.5rem;
+            background: linear-gradient(135deg, #818cf8, #c084fc) !important;
+        }
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 1.5rem;
+            color: #64748b;
+            font-size: 0.85rem;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .back-link:hover { color: #818cf8; }
+        .hint-box {
+            background: rgba(129, 140, 248, 0.05);
+            border: 1px solid rgba(129, 140, 248, 0.15);
+            border-radius: 10px;
+            padding: 0.9rem 1rem;
+            margin-bottom: 1.5rem;
+            font-size: 0.8rem;
+            color: #64748b;
+        }
+        .hint-box span { color: #818cf8; font-weight: 600; }
+        .admin-badge {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            background: rgba(129, 140, 248, 0.1);
+            border: 1px solid rgba(129, 140, 248, 0.2);
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            margin-bottom: 1.5rem;
+            color: #818cf8;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div id="tsparticles"></div>
+
+    <div class="login-wrapper">
+        <div class="login-box">
+            <div class="login-logo">⚡ Jobs SkillSync</div>
+            <div class="login-role">🛡️ Admin Portal</div>
+
+            <div class="admin-badge">
+                🔐 Restricted Access — Authorized Personnel Only
+            </div>
+
+            <div class="hint-box">
+                Demo credentials — Username: <span>admin</span> · Password: <span>admin@skillsync</span>
+            </div>
+
+            <div class="error-msg" id="errorMsg">❌ Invalid admin credentials</div>
+
+            <div class="input-group">
+                <span class="icon">🛡️</span>
+                <input type="text" id="username" placeholder="Admin Username" autocomplete="username">
+            </div>
+            <div class="input-group">
+                <span class="icon">🔒</span>
+                <input type="password" id="password" placeholder="Admin Password" autocomplete="current-password"
+                    onkeydown="if(event.key==='Enter') handleLogin()">
+            </div>
+
+            <button class="btn-primary login-btn" onclick="handleLogin()">Access Admin Panel →</button>
+
+            <a href="../index.html" class="back-link">← Back to Home</a>
+            <a href="#" onclick="logout(); window.location.href='login.html'" style="color:#f87171;">Logout</a>
+        </div>
+    </div>
+
+    <script src="../js/app.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/animations.js"></script>
+    <script>
+        // Redirect if already logged in
+        if (isLoggedIn("admin")) {
+            window.location.href = "dashboard.html";
+        }
+
+        function handleLogin() {
+            const username = document.getElementById("username").value.trim();
+            const password = document.getElementById("password").value.trim();
+            const errorMsg = document.getElementById("errorMsg");
+
+            if (!username || !password) {
+                errorMsg.textContent = "❌ Please enter both username and password";
+                errorMsg.style.display = "block";
+                return;
+            }
+
+            if (login("admin", username, password)) {
+                errorMsg.style.display = "none";
+                showToast("Access granted! Redirecting...", "success");
+                setTimeout(() => window.location.href = "dashboard.html", 1000);
+            } else {
+                errorMsg.textContent = "❌ Invalid admin credentials";
+                errorMsg.style.display = "block";
+            }
+        }
+    </script>
+</body>
+</html>

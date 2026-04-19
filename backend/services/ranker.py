@@ -1,13 +1,7 @@
-from backend.services.matcher import match_resume_to_job
+from services.matcher import match_resume_to_job
 
-def rank_candidates(resumes: list[dict], job_description: str) -> list[dict]:
-    """
-    Takes a list of resumes and ranks them by match score.
-    Each resume dict should have: { name, text, file_name }
-    Returns sorted list with scores added.
-    """
+def rank_candidates(resumes: list, job_description: str) -> list:
     results = []
-
     for resume in resumes:
         score = match_resume_to_job(resume["text"], job_description)
         results.append({
@@ -17,8 +11,6 @@ def rank_candidates(resumes: list[dict], job_description: str) -> list[dict]:
             "match_percentage": f"{round(score * 100, 1)}%",
             "status": get_status(score)
         })
-
-    # Sort by score highest to lowest
     results.sort(key=lambda x: x["score"], reverse=True)
     return results
 
