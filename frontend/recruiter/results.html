@@ -5,9 +5,101 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Results | Jobs SkillSync</title>
     <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/animations.css">
+    <style>
+        .result-card {
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid #1e293b;
+            border-radius: 14px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+        .result-card:hover {
+            border-color: rgba(56, 189, 248, 0.3);
+            transform: translateX(4px);
+        }
+        .result-rank {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #334155;
+            min-width: 40px;
+            text-align: center;
+        }
+        .result-rank.top { color: #38bdf8; }
+        .result-info { flex: 1; }
+        .result-name {
+            color: #f1f5f9;
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 0.2rem;
+        }
+        .result-file {
+            color: #475569;
+            font-size: 0.8rem;
+            margin-bottom: 0.6rem;
+        }
+        .skills-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+            margin-top: 0.5rem;
+        }
+        .skill-tag {
+            background: rgba(56, 189, 248, 0.08);
+            border: 1px solid rgba(56, 189, 248, 0.2);
+            color: #38bdf8;
+            padding: 0.2rem 0.6rem;
+            border-radius: 20px;
+            font-size: 0.72rem;
+            font-weight: 500;
+        }
+        .result-score {
+            text-align: center;
+            min-width: 100px;
+        }
+        .score-number {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #38bdf8;
+        }
+        .score-bar {
+            background: #1e293b;
+            border-radius: 20px;
+            height: 6px;
+            margin-top: 0.4rem;
+            overflow: hidden;
+        }
+        .score-fill {
+            height: 100%;
+            border-radius: 20px;
+            background: linear-gradient(135deg, #38bdf8, #818cf8);
+        }
+        .summary-bar {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+        .summary-item {
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid #1e293b;
+            border-radius: 10px;
+            padding: 0.8rem 1.5rem;
+            text-align: center;
+            flex: 1;
+        }
+        .summary-item .num { font-size: 1.5rem; font-weight: 800; color: #38bdf8; }
+        .summary-item .lbl { color: #64748b; font-size: 0.78rem; }
+    </style>
 </head>
 <body>
-    <nav>
+    <div id="tsparticles"></div>
+
+    <nav class="page-nav">
         <div class="logo">⚡ Jobs SkillSync</div>
         <div class="nav-links">
             <a href="../index.html">Home</a>
@@ -17,63 +109,118 @@
         </div>
     </nav>
 
-    <div class="container">
-        <div class="card">
-            <h2 id="resultsTitle">🏆 Ranked Candidates</h2>
-            <p style="color:#94a3b8; margin-bottom:1.5rem;" id="resultsSubtitle"></p>
+    <div class="container" style="max-width:900px; padding-top:2rem;">
 
-            <table id="resultsTable">
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Candidate</th>
-                        <th>File</th>
-                        <th>Match Score</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody id="resultsBody"></tbody>
-            </table>
-
-            <div id="noResults" style="display:none; color:#94a3b8; text-align:center; padding:2rem;">
-                No results found. <a href="upload.html" style="color:#38bdf8;">Go back and try again.</a>
-            </div>
+        <div style="margin-bottom:1.5rem;">
+            <h1 style="color:#f1f5f9; font-size:1.8rem; font-weight:800;" id="resultsTitle">
+                🏆 Results
+            </h1>
+            <p style="color:#64748b; margin-top:0.3rem;" id="resultsSubtitle"></p>
         </div>
 
-        <div style="text-align:center; margin-top:1rem;">
+        <!-- Summary Bar -->
+        <div class="summary-bar" id="summaryBar"></div>
+
+        <!-- Results List -->
+        <div id="resultsList"></div>
+
+        <div style="text-align:center; margin-top:2rem;">
             <a href="upload.html" class="btn-primary">← Match Another Job</a>
         </div>
     </div>
 
+    <script src="../js/app.js"></script>
     <script src="../js/auth.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tsparticles@2/tsparticles.bundle.min.js"></script>
     <script>
+        requireAuth("recruiter", "login.html");
+
+        window.addEventListener("load", () => {
+            tsParticles.load("tsparticles", {
+                particles: {
+                    number: { value: 40 },
+                    color: { value: ["#38bdf8", "#818cf8"] },
+                    links: { enable: true, color: "#1e293b", opacity: 0.4 },
+                    move: { enable: true, speed: 0.6 },
+                    opacity: { value: 0.4 },
+                    size: { value: { min: 1, max: 2 } }
+                },
+                background: { color: "transparent" }
+            });
+        });
+
         const results = JSON.parse(localStorage.getItem("matchResults") || "[]");
         const jobTitle = localStorage.getItem("jobTitle") || "Job";
 
         document.getElementById("resultsTitle").textContent = `🏆 Results for: ${jobTitle}`;
-        document.getElementById("resultsSubtitle").textContent = `${results.length} candidate(s) analyzed`;
+        document.getElementById("resultsSubtitle").textContent =
+            `${results.length} candidate(s) analyzed and ranked by semantic match`;
 
-        const tbody = document.getElementById("resultsBody");
+        // Summary bar
+        const strong = results.filter(r => r.status === "Strong Match").length;
+        const moderate = results.filter(r => r.status === "Moderate Match").length;
+        const poor = results.filter(r => r.status === "Poor Fit").length;
+        const topScore = results.length > 0 ? results[0].match_percentage : "0%";
 
+        document.getElementById("summaryBar").innerHTML = `
+            <div class="summary-item">
+                <div class="num">${results.length}</div>
+                <div class="lbl">Total Analyzed</div>
+            </div>
+            <div class="summary-item">
+                <div class="num" style="color:#34d399">${strong}</div>
+                <div class="lbl">Strong Matches</div>
+            </div>
+            <div class="summary-item">
+                <div class="num" style="color:#60a5fa">${moderate}</div>
+                <div class="lbl">Moderate Matches</div>
+            </div>
+            <div class="summary-item">
+                <div class="num">${topScore}</div>
+                <div class="lbl">Top Score</div>
+            </div>
+        `;
+
+        // Results list
+        const list = document.getElementById("resultsList");
         if (results.length === 0) {
-            document.getElementById("resultsTable").style.display = "none";
-            document.getElementById("noResults").style.display = "block";
+            list.innerHTML = `
+                <div style="text-align:center; padding:3rem; color:#64748b;">
+                    No results found. <a href="upload.html" style="color:#38bdf8;">Go back and try again.</a>
+                </div>
+            `;
         } else {
             results.forEach((r, index) => {
+                const rankClass = index < 3 ? "top" : "";
+                const rankEmoji = index === 0 ? "🥇" : index === 1 ? "🥈" : index === 2 ? "🥉" : index + 1;
                 const badgeClass = r.status === "Strong Match" ? "badge-strong" :
                                    r.status === "Moderate Match" ? "badge-moderate" : "badge-poor";
-                tbody.innerHTML += `
-                    <tr>
-                        <td>${index + 1}</td>
-                        <td>${r.name}</td>
-                        <td style="color:#94a3b8; font-size:0.85rem;">${r.file_name}</td>
-                        <td><strong style="color:#38bdf8;">${r.match_percentage}</strong></td>
-                        <td><span class="${badgeClass}">${r.status}</span></td>
-                    </tr>
+                const scoreNum = parseFloat(r.match_percentage);
+                const skillsHtml = r.skills && r.skills.length > 0
+                    ? r.skills.slice(0, 8).map(s =>
+                        `<span class="skill-tag">${s}</span>`).join("")
+                    : '<span style="color:#475569; font-size:0.8rem;">No skills extracted</span>';
+
+                list.innerHTML += `
+                    <div class="result-card">
+                        <div class="result-rank ${rankClass}">${rankEmoji}</div>
+                        <div class="result-info">
+                            <div class="result-name">${r.name}</div>
+                            <div class="result-file">📄 ${r.file_name}</div>
+                            <span class="${badgeClass}">${r.status}</span>
+                            <div class="skills-list">${skillsHtml}</div>
+                        </div>
+                        <div class="result-score">
+                            <div class="score-number">${r.match_percentage}</div>
+                            <div style="color:#64748b; font-size:0.75rem; margin-top:0.2rem;">Match Score</div>
+                            <div class="score-bar">
+                                <div class="score-fill" style="width:${scoreNum}%"></div>
+                            </div>
+                        </div>
+                    </div>
                 `;
             });
         }
-        requireAuth("recruiter", "login.html");
     </script>
 </body>
 </html>

@@ -9,15 +9,16 @@ def rank_candidates(resumes: list, job_description: str) -> list:
             "file_name": resume["file_name"],
             "score": score,
             "match_percentage": f"{round(score * 100, 1)}%",
-            "status": get_status(score)
+            "status": get_status(score),
+            "skills": resume.get("skills", [])
         })
     results.sort(key=lambda x: x["score"], reverse=True)
     return results
 
 def get_status(score: float) -> str:
-    if score >= 0.85:
+    if score >= 0.35:
         return "Strong Match"
-    elif score >= 0.5:
+    elif score >= 0.25:
         return "Moderate Match"
     else:
         return "Poor Fit"

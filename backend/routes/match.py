@@ -4,6 +4,7 @@ from typing import List
 import tempfile, os, shutil
 from services.parser import parse_resume
 from services.ranker import rank_candidates
+from services.extractor import extract_info
 from database.models import get_db, Job, MatchResult
 
 router = APIRouter()
@@ -23,14 +24,20 @@ async def rank_resumes(
             shutil.copyfileobj(resume_file.file, tmp)
             tmp_path = tmp.name
 
+        # Parse text
         text = parse_resume(tmp_path)
         os.unlink(tmp_path)
 
+        # Extract skills using NER
+        info = extract_info(text)
+
         name = os.path.splitext(resume_file.filename)[0]
         parsed_resumes.append({
-            "name": name,
+            "name": info["name"] if info["name"] != "Unknown" else name,
             "file_name": resume_file.filename,
-            "text": text
+            "text": text,
+            "skills": info["skills"],
+            "skill_count": info["skill_count"]
         })
 
     # Rank candidates
@@ -48,7 +55,7 @@ async def rank_resumes(
     db.commit()
     db.refresh(job)
 
-    # Save each match result
+    # Save each result
     for r in results:
         match = MatchResult(
             job_id=job.id,
@@ -61,7 +68,6 @@ async def rank_resumes(
         db.add(match)
     db.commit()
 
-    # Return results with job_id
     return {"job_id": job.id, "results": results}
 
 
