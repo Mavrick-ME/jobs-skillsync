@@ -2,12 +2,19 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from routes import resume, jobs, match, admin
+from database.models import init_db
 
 app = FastAPI(
     title="Jobs SkillSync API",
     description="Intelligent Resume Job Matching System",
     version="1.0.0"
 )
+
+# Initialize database on startup
+@app.on_event("startup")
+def startup():
+    init_db()
+    print("✅ Database initialized!")
 
 # Allow frontend to talk to backend
 app.add_middleware(

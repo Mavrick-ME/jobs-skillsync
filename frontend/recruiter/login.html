@@ -6,7 +6,6 @@
     <title>Recruiter Login | Jobs SkillSync</title>
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../css/animations.css">
-    <script src="https://cdn.jsdelivr.net/npm/tsparticles@2/tsparticles.bundle.min.js"></script>
     <style>
         .login-wrapper {
             min-height: 100vh;
@@ -107,6 +106,7 @@
     </style>
 </head>
 <body>
+
     <div id="tsparticles"></div>
 
     <div class="login-wrapper">
@@ -135,15 +135,30 @@
             <button class="btn-primary login-btn" onclick="handleLogin()">Sign In →</button>
 
             <a href="../index.html" class="back-link">← Back to Home</a>
-            <a href="#" onclick="logout(); window.location.href='login.html'" style="color:#f87171;">Logout</a>
         </div>
     </div>
 
     <script src="../js/app.js"></script>
     <script src="../js/auth.js"></script>
-    <script src="../js/animations.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tsparticles@2/tsparticles.bundle.min.js"></script>
     <script>
-        // Redirect if already logged in
+        window.addEventListener("load", () => {
+            tsParticles.load("tsparticles", {
+                particles: {
+                    number: { value: 40 },
+                    color: { value: ["#38bdf8", "#818cf8"] },
+                    links: { enable: true, color: "#1e293b", opacity: 0.4 },
+                    move: { enable: true, speed: 0.6 },
+                    opacity: { value: 0.4 },
+                    size: { value: { min: 1, max: 2 } }
+                },
+                interactivity: {
+                    events: { onHover: { enable: true, mode: "repulse" } }
+                },
+                background: { color: "transparent" }
+            });
+        });
+
         if (isLoggedIn("recruiter")) {
             window.location.href = "dashboard.html";
         }
