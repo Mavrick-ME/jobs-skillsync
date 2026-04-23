@@ -1,3 +1,4 @@
+from services.bias_filter import apply_bias_filter, get_anonymized_name
 from fastapi import APIRouter, UploadFile, File, Form, Depends
 from sqlalchemy.orm import Session
 from typing import List
@@ -28,14 +29,17 @@ async def rank_resumes(
         text = parse_resume(tmp_path)
         os.unlink(tmp_path)
 
-        # Extract skills using NER
-        info = extract_info(text)
+        # Apply bias filter BEFORE extracting info
+        filtered_text = apply_bias_filter(text)
+
+        # Extract skills using NER on filtered text
+        info = extract_info(filtered_text)
 
         name = os.path.splitext(resume_file.filename)[0]
         parsed_resumes.append({
             "name": info["name"] if info["name"] != "Unknown" else name,
             "file_name": resume_file.filename,
-            "text": text,
+            "text": filtered_text,
             "skills": info["skills"],
             "skill_count": info["skill_count"]
         })
